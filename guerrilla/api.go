@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/flashmob/go-guerrilla/backends"
-	"github.com/flashmob/go-guerrilla/log"
+	"github.com/chatkit/go-guerrilla/backends"
+	"github.com/chatkit/go-guerrilla/log"
 	"io/ioutil"
 	"time"
 )
