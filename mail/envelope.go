@@ -75,6 +75,8 @@ type Envelope struct {
 	RcptTo []Address
 	// Data stores the header and message body
 	Data bytes.Buffer
+	// RawData stores the bytes of the Data, extracted after calling Parse()
+	RawData []byte
 	// Subject stores the subject of the email, extracted and decoded after calling ParseHeaders()
 	Subject string
 	// TLS is true if the email was received using a TLS connection
@@ -103,6 +105,23 @@ func NewEnvelope(remoteAddr string, clientID uint64) *Envelope {
 
 func queuedID(clientID uint64) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(string(time.Now().Unix())+string(clientID))))
+}
+
+// Parse extracts the Subject and Data and stores it in the Envelope
+func (e *Envelope) Parse() {
+	e.RawData = e.Data.Bytes()
+	e.ParseHeaders()
+}
+
+// Body returns the string representation of the body of the email
+func (e *Envelope) Body() (string, error) {
+	res := strings.SplitN(string(e.RawData), "\n\n", 2) // double \n is the end of the headers
+	if len(res) != 2 {
+		return "", errors.New("invalid RawData")
+	}
+	// the body always has an extra \n at the front & end of it. Get rid of these
+	res = strings.SplitN(res[1], "\n", -1)
+	return strings.Join(res[1:len(res)-1], "\n"), nil
 }
 
 // ParseHeaders parses the headers into Header field of the Envelope struct.
