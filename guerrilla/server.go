@@ -12,12 +12,13 @@ import (
 	"time"
 
 	"crypto/x509"
+	"io/ioutil"
+	"path/filepath"
+
 	"github.com/chatkit/go-guerrilla/backends"
 	"github.com/chatkit/go-guerrilla/log"
 	"github.com/chatkit/go-guerrilla/mail"
 	"github.com/chatkit/go-guerrilla/response"
-	"io/ioutil"
-	"path/filepath"
 )
 
 const (
@@ -356,6 +357,7 @@ func (server *server) handleClient(client *client) {
 	pipelining := "250-PIPELINING\r\n"
 	advertiseTLS := "250-STARTTLS\r\n"
 	advertiseEnhancedStatusCodes := "250-ENHANCEDSTATUSCODES\r\n"
+	advertiseAuth := "250-AUTH\r\n"
 	// The last line doesn't need \r\n since string will be printed as a new line.
 	// Also, Last line has no dash -
 	help := "250 HELP"
@@ -426,6 +428,7 @@ func (server *server) handleClient(client *client) {
 					pipelining,
 					advertiseTLS,
 					advertiseEnhancedStatusCodes,
+					advertiseAuth,
 					help)
 
 			case strings.Index(cmd, "HELP") == 0:
@@ -521,6 +524,8 @@ func (server *server) handleClient(client *client) {
 
 				client.sendResponse(response.Canned.SuccessStartTLSCmd)
 				client.state = ClientStartTLS
+			case strings.Index(cmd, "AUTH") == 0:
+				client.sendResponse(response.Canned.SuccessAuthCmd)
 			default:
 				client.errors++
 				if client.errors >= MaxUnrecognizedCommands {

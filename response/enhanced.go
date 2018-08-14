@@ -151,6 +151,7 @@ type Responses struct {
 	SuccessDataCmd       string
 	SuccessStartTLSCmd   string
 	SuccessMessageQueued string
+	SuccessAuthCmd       string
 }
 
 // Called automatically during package load to build up the Responses struct
@@ -344,6 +345,13 @@ func init() {
 		Comment:      "User unknown in local recipient table",
 	}).String()
 
+	Canned.SuccessAuthCmd = (&Response{
+		EnhancedCode: OtherOrUndefinedSecurityStatus,
+		BasicCode:    235,
+		Class:        ClassSuccess,
+		Comment:      "Authentication successful",
+	}).String()
+
 }
 
 // DefaultMap contains defined default codes (RfC 3463)
@@ -388,6 +396,7 @@ const (
 	ConversionRequiredButNotSupported       = ".6.3"
 	ConversionWithLossPerformed             = ".6.4"
 	ConversionFailed                        = ".6.5"
+	OtherOrUndefinedSecurityStatus          = ".7.0"
 )
 
 var defaultTexts = struct {
